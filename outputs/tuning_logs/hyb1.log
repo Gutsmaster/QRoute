@@ -1,0 +1,14 @@
+[H1: QPSO + sparse crossover supplement (coarse sweep)] done Delhi
+[H1: QPSO + sparse crossover supplement (coarse sweep)] done C1
+[H1: QPSO + sparse crossover supplement (coarse sweep)] done R1
+[H1: QPSO + sparse crossover supplement (coarse sweep)] done RC1
+
+=== H1: QPSO + sparse crossover supplement (coarse sweep) ===
+variant                                        Delhi        C1        R1       RC1   gap%_vs_GA  avg_s
+Q baseline (no crossover)                       8797     48599     75880     68441     +2.0%    3.1
+Q +order-X frac=.15                             8917     48727     78794     70475     +4.1%    2.3
+Q +order-X frac=.30                             8860     48328     77077     70314     +3.1%    2.1
+Q +qblend-X frac=.15                            8795     47979     76213     68525     +1.8%    2.5
+Q +qblend-X frac=.30                            8862     48050     77990     68716     +2.7%    2.3
+Q +qblend-X frac=.50                            8901     49353     76024     68008     +2.6%    2.0
+GA+LS(memetic) [reference]                      8669     46574     73656     69029

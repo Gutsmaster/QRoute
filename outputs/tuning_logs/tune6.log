@@ -1,0 +1,14 @@
+done instance Delhi
+done instance C1
+done instance R1
+done instance RC1
+
+MEAN FITNESS (lower=better) per instance:
+variant                          Delhi        C1        R1       RC1   avg_time_s
+Q uf.2 lam1 tp.25                 9120     56525     91491     79225   1.7
+Q uf.2 lam1 tp.5                  9100     56662     93119     78457   1.8
+Q uf.35 lam1 tp.25                9120     56525     91491     79225   1.6
+Q uf.2 lam.5 tp.25                9063     53488     87543     77569   2.1
+P uf.2 lam1 tp.25                 9132     57423     94142     80764   1.6
+GA(plain)                         9449     51888     87338     80599   0.6
+TunedLS                           9837     56291    103159     86472   0.0

@@ -1,0 +1,14 @@
+[D: stochastic multi-elite attractor] done Delhi
+[D: stochastic multi-elite attractor] done C1
+[D: stochastic multi-elite attractor] done R1
+[D: stochastic multi-elite attractor] done RC1
+
+=== D: stochastic multi-elite attractor ===
+variant                                        Delhi        C1        R1       RC1   gap%_vs_GA  avg_s
+Q global (baseline)                             8797     48599     75880     68441     +2.0%    3.5
+Q stoch-elite k=.10                             8828     50086     76690     69842     +3.7%    3.8
+Q stoch-elite k=.25                             8647     48589     77587     68806     +2.3%    4.0
+Q stoch-elite k=.40                             8847     49086     77295     70021     +3.5%    4.3
+P global (baseline, classical)                  8850     48462     79084     71830     +4.4%    3.7
+P stoch-elite k=.25 (classical)                 8868     49031     79226     70965     +4.5%    4.3
+GA+LS(memetic) [reference]                      8669     46574     73656     69029

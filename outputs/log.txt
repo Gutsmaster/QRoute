@@ -1,0 +1,36 @@
+=== Loading real Delhi NCR data (Aug 12, 2024: normal weekday) ===
+Full graph 18916 nodes / 24938 edges; demo subgraph 455 / 588
+=== 1. Convergence on the demo instance (9am) ===
+single-run (seed 1): QPSO=8675, QPSO + quantum-walk init bias=8935, PSO (same infra, tuned)=8774, GA + local search=8579, GA (plain)=9380, ACO=8869, TunedLS=9837
+=== 2. Festival-day test: plan built on Aug 12 evaluated on Rakshabandhan (Aug 19) ===
+  hour 9: stale-plan penalty on festival day = 8.1% ; festival-day optimum vs normal-day optimum = +62.8%
+  hour 18: stale-plan penalty on festival day = 2.7% ; festival-day optimum vs normal-day optimum = -8.1%
+=== 3. Disruption recovery (5 seeds): 25% of links slow x3 at iteration 40 ===
+  final mean cost: with recovery 9147 vs without 9120 (recovery better in 2/5 seeds)
+=== 4. Scalability: flat vs hierarchical QPSO ===
+  n=12: flat 2.2s fit 3531 | hierarchical(2 zones) 1.1s fit 3656
+  n=24: flat 4.6s fit 8943 | hierarchical(2 zones) 2.7s fit 8931
+  n=48: flat 11.5s fit 11004 | hierarchical(4 zones) 5.4s fit 9873
+  n=72: flat 18.8s fit 19779 | hierarchical(7 zones) 7.1s fit 17161
+=== 5. Multi-objective Pareto sweep ===
+  3 non-dominated of 12 candidates (4 metrics)
+=== 6. Diverse plan archive and road-closure fallback ===
+  8 archive cells | after closure: incumbent 25443, best archived plan 9352 (instant), full re-optimisation 9029 (4.9s)
+=== 7. Fixed 9am plan vs re-optimising at each departure hour ===
+  mean regret of never re-routing: 5.7%
+=== 8. HELD-OUT benchmark (instances + seeds different from tuning) ===
+  Delhi-9am-s7: QPSO=5438, PSO(same infra, tuned)=5450, QPSO-Basic(first pass)=7937, GA+LS(memetic)=5451, GA(plain)=6169, ACO=5979, TunedLS(HGS-inspired)=7069, OR-Tools(GLS,5s)=5417
+  Delhi-6pm-s11: QPSO=10704, PSO(same infra, tuned)=10821, QPSO-Basic(first pass)=15540, GA+LS(memetic)=10386, GA(plain)=12173, ACO=11433, TunedLS(HGS-inspired)=14552, OR-Tools(GLS,5s)=9785
+  C1-synthetic: QPSO=38985, PSO(same infra, tuned)=37774, QPSO-Basic(first pass)=76671, GA+LS(memetic)=32405, GA(plain)=38011, ACO=60614, TunedLS(HGS-inspired)=37347, OR-Tools(GLS,5s)=29814
+  C2-synthetic: QPSO=53211, PSO(same infra, tuned)=58448, QPSO-Basic(first pass)=139738, GA+LS(memetic)=53429, GA(plain)=62903, ACO=82466, TunedLS(HGS-inspired)=118486, OR-Tools(GLS,5s)=52041
+  R1-synthetic: QPSO=72137, PSO(same infra, tuned)=77040, QPSO-Basic(first pass)=153913, GA+LS(memetic)=70020, GA(plain)=77873, ACO=116527, TunedLS(HGS-inspired)=101949, OR-Tools(GLS,5s)=68985
+  R2-synthetic: QPSO=79871, PSO(same infra, tuned)=85842, QPSO-Basic(first pass)=180100, GA+LS(memetic)=79398, GA(plain)=94842, ACO=153735, TunedLS(HGS-inspired)=97818, OR-Tools(GLS,5s)=76244
+  RC1-synthetic: QPSO=68329, PSO(same infra, tuned)=69013, QPSO-Basic(first pass)=146026, GA+LS(memetic)=65632, GA(plain)=81264, ACO=108493, TunedLS(HGS-inspired)=84374, OR-Tools(GLS,5s)=60911
+  RC2-synthetic: QPSO=69544, PSO(same infra, tuned)=70106, QPSO-Basic(first pass)=154602, GA+LS(memetic)=68464, GA(plain)=80275, ACO=120102, TunedLS(HGS-inspired)=95148, OR-Tools(GLS,5s)=64913
+  QPSO vs PSO(same infra, tuned): mean improvement +3.9%  wins 62% of 32  p=0.1038
+  QPSO vs QPSO-Basic(first pass): mean improvement +54.5%  wins 100% of 32  p=0.0000
+  QPSO vs GA+LS(memetic): mean improvement -3.4%  wins 19% of 32  p=0.0024
+  QPSO vs GA(plain): mean improvement +12.2%  wins 88% of 32  p=0.0000
+  QPSO vs ACO: mean improvement +39.6%  wins 97% of 32  p=0.0000
+  QPSO vs TunedLS(HGS-inspired): mean improvement +28.5%  wins 91% of 32  p=0.0000
+  ABLATION (identical infrastructure, only update rule differs): QPSO better in 20/32, mean +3.93%, p=0.1038

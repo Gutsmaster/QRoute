@@ -1,0 +1,17 @@
+[H2: refine quantum-blend crossover (8 seeds for robustness)] done Delhi
+[H2: refine quantum-blend crossover (8 seeds for robustness)] done C1
+[H2: refine quantum-blend crossover (8 seeds for robustness)] done R1
+[H2: refine quantum-blend crossover (8 seeds for robustness)] done RC1
+
+=== H2: refine quantum-blend crossover (8 seeds for robustness) ===
+variant                                            Delhi        C1        R1       RC1   gap%_vs_GA  avg_s
+Q baseline (no crossover), 8 seeds                  8833     48346     78478     68642     +3.1%    3.2
+Q qblend frac=.05 elite=.3                          8767     48566     81232     71569     +5.1%    2.9
+Q qblend frac=.10 elite=.3                          8750     48164     76950     68323     +2.2%    2.8
+Q qblend frac=.15 elite=.3 (round1 best)            8788     48092     77606     69319     +2.8%    2.5
+Q qblend frac=.20 elite=.3                          8865     48148     76489     69079     +2.6%    2.5
+Q qblend frac=.15 elite=.2                          8854     48327     77404     69568     +3.2%    2.5
+Q qblend frac=.15 elite=.5                          8812     48111     76508     69979     +2.8%    2.7
+GA+LS(memetic) [reference]                          8670     46718     73711     68135
+
+Paired test on TUNING set, 32 pairs: qblend better in 17/32, mean diff 123.3, Wilcoxon p=0.6884

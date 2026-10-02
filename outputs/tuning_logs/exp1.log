@@ -1,0 +1,36 @@
+[A: scalar-u x elite-mBest (tunnel=0.5, current default)] done instance Delhi
+[A: scalar-u x elite-mBest (tunnel=0.5, current default)] done instance C1
+[A: scalar-u x elite-mBest (tunnel=0.5, current default)] done instance R1
+[A: scalar-u x elite-mBest (tunnel=0.5, current default)] done instance RC1
+
+=== A: scalar-u x elite-mBest (tunnel=0.5, current default) === MEAN FITNESS (lower=better)
+variant                            Delhi        C1        R1       RC1   mean_gap%_vs_GA  avg_s
+1 vector-u + full-mBest (baseline)      8797     48599     75880     68441     +2.0%      3.6
+2 scalar-u + full-mBest             8791     48314     77916     71742     +3.7%      3.5
+3 vector-u + elite-mBest(15%)       8693     48825     78422     72098     +4.0%      3.5
+4 scalar-u + elite-mBest(15%)       8843     48784     78064     71110     +3.9%      3.5
+GA+LS(memetic) [reference]          8669     46574     73656     69029
+[B: rank-space jump vs raw-key jump, with/without tunneling] done instance Delhi
+[B: rank-space jump vs raw-key jump, with/without tunneling] done instance C1
+[B: rank-space jump vs raw-key jump, with/without tunneling] done instance R1
+[B: rank-space jump vs raw-key jump, with/without tunneling] done instance RC1
+
+=== B: rank-space jump vs raw-key jump, with/without tunneling === MEAN FITNESS (lower=better)
+variant                            Delhi        C1        R1       RC1   mean_gap%_vs_GA  avg_s
+5 baseline (raw-key jump), tunnel .5      8797     48599     75880     68441     +2.0%      3.7
+6 rank-jump, tunnel .5              8763     48230     76736     71264     +3.0%      3.6
+7 baseline (raw-key jump), tunnel 0      8866     49818     84306     71332     +6.8%      2.3
+8 rank-jump, tunnel 0               9001     48050     83059     73192     +6.5%      2.1
+GA+LS(memetic) [reference]          8669     46574     73656     69029
+[C: rank-jump combined with other candidates] done instance Delhi
+[C: rank-jump combined with other candidates] done instance C1
+[C: rank-jump combined with other candidates] done instance R1
+[C: rank-jump combined with other candidates] done instance RC1
+
+=== C: rank-jump combined with other candidates === MEAN FITNESS (lower=better)
+variant                            Delhi        C1        R1       RC1   mean_gap%_vs_GA  avg_s
+9 rank-jump + scalar-u, tunnel .5      8831     48204     77622     68888     +2.6%      3.3
+10 rank-jump + elite-mBest, tunnel .5      8763     48029     78051     69326     +2.7%      3.5
+11 rank-jump + scalar-u + elite, tunnel .5      8721     47964     80064     70054     +3.4%      3.4
+12 rank-jump, tunnel .25 (less redundant)      8882     48129     78429     70123     +3.5%      2.9
+GA+LS(memetic) [reference]          8669     46574     73656     69029

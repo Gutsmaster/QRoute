@@ -1,0 +1,12 @@
+done instance Delhi
+done instance C1
+done instance R1
+done instance RC1
+
+MEAN FITNESS (lower=better) per instance:
+variant                          Delhi        C1        R1       RC1   avg_time_s
+GA+LS baldwin                     8913     48652     79232     72749   1.8
+GA+LS lamarck                     8669     46574     73656     69029   1.5
+GA+LS lamarck mut.35              8796     46723     75051     65866   1.7
+GA(plain)                         9449     51888     87338     80599   0.6
+TunedLS                           9837     56291    103159     86472   0.0

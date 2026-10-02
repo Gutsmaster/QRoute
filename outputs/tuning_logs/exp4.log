@@ -1,0 +1,12 @@
+[F: diversity-triggered (not stagnation-triggered) exploration boost] done Delhi
+[F: diversity-triggered (not stagnation-triggered) exploration boost] done C1
+[F: diversity-triggered (not stagnation-triggered) exploration boost] done R1
+[F: diversity-triggered (not stagnation-triggered) exploration boost] done RC1
+
+=== F: diversity-triggered (not stagnation-triggered) exploration boost ===
+variant                                      Delhi        C1        R1       RC1   gap%_vs_GA  avg_s
+Q no div-boost (baseline)                     8797     48599     75880     68441     +2.0%    2.9
+Q div-boost floor=.08                         8797     48599     75880     68441     +2.0%    2.9
+Q div-boost floor=.15                         8797     48599     75880     68441     +2.0%    2.8
+Q div-boost floor=.25                         8797     48599     75880     68441     +2.0%    2.8
+GA+LS(memetic) [reference]                    8669     46574     73656     69029

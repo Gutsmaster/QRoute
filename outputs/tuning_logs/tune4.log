@@ -1,0 +1,13 @@
+done instance Delhi
+done instance C1
+done instance R1
+done instance RC1
+
+MEAN FITNESS (lower=better) per instance:
+variant                          Delhi        C1        R1       RC1   avg_time_s
+P base (classical)                8888     49112     81674     69380   4.2
+Q low+noboost                     8749     49494     77742     69379   3.9
+Q vlow+noboost                    8797     48599     75880     68441   3.7
+Q low+noboost+noweight            8894     48416     77814     70985   4.0
+GA(plain)                         9449     51888     87338     80599   2.3
+TunedLS                           9837     56291    103159     86472   0.0

@@ -1,0 +1,15 @@
+done instance Delhi
+done instance C1
+done instance R1
+done instance RC1
+
+MEAN FITNESS (lower=better) per instance:
+variant                          Delhi        C1        R1       RC1   avg_time_s
+PSO-classical(same infra)         9210     59548     96195     84142   0.7
+QPSO-plain-delta                  9228     59548     96195     88066   0.6
+QPSO-lowbeta                      9228     59548     96195     88066   0.6
+QPSO-weighted                     9228     59548     96195     88066   0.6
+QPSO-weighted+boost               9228     59548     96195     88066   0.6
+QPSO-full(w+boost+tunnel)         9204     58918     96195     82598   0.8
+GA(plain)                         9375     51830     86898     80533   2.3
+TunedLS                           9837     56291    103159     86472   0.0

@@ -1,0 +1,16 @@
+[E: local-search frequency / elite-targeting] done Delhi
+[E: local-search frequency / elite-targeting] done C1
+[E: local-search frequency / elite-targeting] done R1
+[E: local-search frequency / elite-targeting] done RC1
+
+=== E: local-search frequency / elite-targeting ===
+variant                                      Delhi        C1        R1       RC1   gap%_vs_GA  avg_s
+Q ls_every=1 (baseline)                       8797     48599     75880     68441     +2.0%    3.5
+Q ls_every=2                                  8796     49894     79636     70591     +4.7%    2.5
+Q ls_every=3                                  8948     49820     83145     72032     +6.9%    2.1
+Q ls_elite=.5 every iter                      8910     50776     80045     73724     +6.8%    2.4
+Q ls_elite=.3 every iter                      8810     51699     83492     71049     +7.2%    1.8
+P ls_every=1 (baseline, classic)              8850     48462     79084     71830     +4.4%    3.7
+P ls_every=2 (classical)                      8871     49623     78454     73546     +5.5%    2.5
+P ls_elite=.5 every iter (classic)            8908     49459     80968     73096     +6.2%    2.5
+GA+LS(memetic) [reference]                    8669     46574     73656     69029
