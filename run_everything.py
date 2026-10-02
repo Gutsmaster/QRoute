@@ -24,6 +24,7 @@ from baselines import GeneticAlgorithm, AntColony, TunedLocalSearch
 from solomon_synthetic import generate_sweep
 import run_full_benchmark as RB
 
+QPSO.STACK_DEFAULTS.update(writeback_mode="sorted_reassign", ls_extended=True)   # confirmed stack: write-back + extended inter-route search
 OUT = "outputs"; os.makedirs(OUT, exist_ok=True)
 GJ = "data/new_delhi_traffic_dataset/probe_counts/geojson/new_delhi__%s_to_%s_.geojson"
 BBOX = (77.205, 28.625, 77.225, 28.645)

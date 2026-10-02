@@ -18,7 +18,7 @@ from qpso_core import QPSO, evaluate_routes, fitness_weighted
 from baselines import GeneticAlgorithm, AntColony, TunedLocalSearch, solve_ortools_cvrptw
 
 # chosen from the GA tuning round (see outputs/tuning_logs/)
-GA_MEMETIC_KW = dict(local_search=True, lamarck=True)
+GA_MEMETIC_KW = dict(local_search=True, lamarck=True, ls_extended=True)   # same extended inter-route search as QPSO/PSO
 
 ALGO_ORDER = ["QPSO", "PSO(same infra, tuned)", "QPSO-Basic(first pass)",
               "GA+LS(memetic)", "GA(plain)", "ACO", "TunedLS(HGS-inspired)"]
@@ -61,15 +61,19 @@ def benchmark_instance(name, n_customers, demands, capacity, tw, T, D, E,
         fits = [ps[algo]["fit"] for ps in per_seed]
         summary[algo] = {"mean_fit": float(np.mean(fits)), "std_fit": float(np.std(fits)), "fits": fits,
                          "mean_time_s": float(np.mean([ps[algo]["time_s"] for ps in per_seed]))}
-    # OR-Tools CVRPTW reference (same objective + soft time windows), single run
+    # OR-Tools CVRPTW reference: BETTER of a hardened and the original configuration (same objective + soft time windows), single run each
     ort_name = "OR-Tools(GLS,%ds)" % ortools_time_limit
+    HARD_OR = dict(first_solution="LOCAL_CHEAPEST_INSERTION", metaheuristic="GUIDED_LOCAL_SEARCH", scale=100, precise=True)
+    ORIG_OR = dict(first_solution="PATH_CHEAPEST_ARC", metaheuristic="GUIDED_LOCAL_SEARCH", scale=1, precise=False)
     try:
-        t0 = time.time()
-        routes = solve_ortools_cvrptw(n_customers, demands, capacity, tw, T, D, E, time_limit_s=ortools_time_limit)
-        if routes:
-            m = evaluate_routes(routes, T, D, E, tw, demands, capacity)
-            f = float(fitness_weighted(m))
-            summary[ort_name] = {"mean_fit": f, "std_fit": 0.0, "fits": [f], "mean_time_s": time.time() - t0}
+        t0 = time.time(); best_or = None
+        for cfg in (HARD_OR, ORIG_OR):
+            routes = solve_ortools_cvrptw(n_customers, demands, capacity, tw, T, D, E, time_limit_s=ortools_time_limit, **cfg)
+            if routes:
+                f = float(fitness_weighted(evaluate_routes(routes, T, D, E, tw, demands, capacity)))
+                best_or = f if best_or is None else min(best_or, f)
+        if best_or is not None:
+            summary[ort_name] = {"mean_fit": best_or, "std_fit": 0.0, "fits": [best_or], "mean_time_s": time.time() - t0}
     except Exception as e:
         print("OR-Tools failed on", name, e)
     best = min(s["mean_fit"] for s in summary.values())

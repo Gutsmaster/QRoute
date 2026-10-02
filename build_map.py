@@ -18,6 +18,7 @@ from vrp_instance import make_synthetic_instance
 from qpso_core import QPSO, decode_random_key
 from baselines import solve_ortools_cvrptw
 
+QPSO.STACK_DEFAULTS.update(writeback_mode="sorted_reassign", ls_extended=True)
 BBOX = (77.205, 28.625, 77.225, 28.645)
 N_CUSTOMERS = 24
 
@@ -33,7 +34,7 @@ T, D, E = inst.time_mat[9], inst.dist_mat[9], inst.emis_mat[9]
 qpso_res = QPSO(N_CUSTOMERS, demands, 100, tw, T, D, E, n_particles=24, n_iter=80, seed=1).run()
 qpso_routes = qpso_res["gbest_routes"]
 
-ls_routes = solve_ortools_cvrptw(N_CUSTOMERS, demands, 100, tw, T, D, E, time_limit_s=5)
+ls_routes = solve_ortools_cvrptw(N_CUSTOMERS, demands, 100, tw, T, D, E, time_limit_s=5, first_solution="LOCAL_CHEAPEST_INSERTION", scale=100, precise=True)
 
 center_lat = Gs.nodes[inst.depot]["lat"]
 center_lon = Gs.nodes[inst.depot]["lon"]

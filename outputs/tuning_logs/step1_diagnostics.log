@@ -1,0 +1,13 @@
+Aggregated over 2 tuning instances x 2 seeds (24 particles x 80 iters)
+
+config                     fit |  LS_impr%   desyncKT |  nat_chg%    nat_KT rho(d,KT) |  total_KT |  mbStd@e  mbStd@l    mbDev
+quantum  tunnel=0        46455 |    100.0%      0.107 |     98.7%    0.0690     0.917 |    0.0690 |    0.218    0.193    0.043
+classical tunnel=0       45931 |    100.0%      0.118 |     92.4%    0.0534     0.934 |    0.0534 |      nan      nan      nan
+quantum  tunnel=.5       41760 |    100.0%      0.108 |     99.5%    0.1292     0.940 |    0.1660 |    0.195    0.189    0.077
+classical tunnel=.5      43928 |    100.0%      0.104 |    100.0%    0.1682     0.942 |    0.2004 |      nan      nan      nan
+
+Legend: LS_impr% = share of particle-evals where local search improved the decoded plan;
+desyncKT = normalised Kendall distance between the keys' own permutation (what pbest stores) and the LS-improved plan that earned the stored cost;
+nat_chg% = share of native (pre-tunnel) updates that change the decoded permutation at all; nat_KT = mean Kendall change of native update;
+rho = Spearman corr between key-space distance moved and Kendall change; total_KT = mean Kendall change incl. tunneling;
+mbStd = std of mbest across customers (0 => flat vector), early/late; mbDev = mean |mbest - x|.

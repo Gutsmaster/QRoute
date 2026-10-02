@@ -1,0 +1,18 @@
+done Delhi
+done C1
+done R1
+done RC1
+
+MEAN COST per tuning instance (lower = better) | mean seconds per run | gap to hardened OR-Tools@5s
+variant         Delhi       C1       R1      RC1   sec   gapOR%
+Q+WB             8718    46952    74826    66091   3.3    +2.1
+Q+WB+EXT         8632    46019    73135    65352   3.6    +0.5
+GA+LS            8642    46433    73873    69134   1.4    +2.5
+GA+LS+EXT        8588    45970    73188    64609   2.5    +0.1
+OR hard 5s       8579    45943    73655    64080
+
+EXT vs base (24 pairs; positive = EXT better):
+  Q+WB+EXT vs Q+WB       wins 17/24  mean  +1.55%  p=0.003  Holm-p=0.003
+  GA+LS+EXT vs GA+LS     wins 17/24  mean  +2.26%  p=0.000  Holm-p=0.001
+descriptive: Q+WB+EXT vs GA+LS+EXT wins 8/24 mean -0.43% p=0.153
+descriptive: Q+WB     vs GA+LS     wins 9/24 mean +0.27% p=0.986

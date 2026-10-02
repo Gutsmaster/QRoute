@@ -1,0 +1,16 @@
+Route 1 confirmation - tie/loss breakdown and bootstrap 95% CI (48 pairs; positive = first better)
+  H1 QPSO+EXT vs QPSO        wins 36  losses  5  exact ties  7 | mean +1.88% CI [+1.27,+2.53] | Wilcoxon on non-tied p=0.0000
+  H2 PSO+EXT vs PSO          wins 40  losses  7  exact ties  1 | mean +3.26% CI [+2.35,+4.22] | Wilcoxon on non-tied p=0.0000
+  H3 QPSO+EXT vs PSO+EXT     wins 18  losses  9  exact ties 21 | mean +0.52% CI [+0.02,+1.08] | Wilcoxon on non-tied p=0.0163
+  H4 QPSO+EXT vs GA+EXT      wins 15  losses 15  exact ties 18 | mean +0.21% CI [-0.17,+0.65] | Wilcoxon on non-tied p=0.7035
+
+Instances where ALL of QPSO+EXT, PSO+EXT, GA+EXT reach an identical mean cost (ceiling effect): ['R1-synthetic', 'RC2-synthetic']
+Per-instance QPSO+EXT vs OR-hard@T (negative = QPSO better):
+  Delhi-Aug12-9am-s111       QPSO     5118  OR-hard@T     5010  OR-orig@T     5115  gap +2.16%  (T=5.6s)
+  Delhi-Aug19fest-noon-s117  QPSO    10592  OR-hard@T    10506  OR-orig@T    10495  gap +0.82%  (T=4.5s)
+  C1-synthetic               QPSO    40646  OR-hard@T    40651  OR-orig@T    42265  gap -0.01%  (T=4.2s)
+  C2-synthetic               QPSO    45779  OR-hard@T    46015  OR-orig@T    45558  gap -0.51%  (T=3.3s)
+  R1-synthetic               QPSO    60778  OR-hard@T    60778  OR-orig@T    60778  gap +0.00%  (T=2.5s)
+  R2-synthetic               QPSO    63601  OR-hard@T    63485  OR-orig@T    63718  gap +0.18%  (T=3.6s)
+  RC1-synthetic              QPSO    56212  OR-hard@T    56231  OR-orig@T    56231  gap -0.03%  (T=2.9s)
+  RC2-synthetic              QPSO    64614  OR-hard@T    64209  OR-orig@T    64565  gap +0.63%  (T=3.0s)

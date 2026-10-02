@@ -14,7 +14,7 @@ Update rule (delta-potential well):
   giving the exploration->exploitation balance QPSO is chosen for.
 """
 import numpy as np
-from local_search import split_optimal, local_search_pass, clarke_wright_savings, routes_to_keys
+from local_search import split_optimal, local_search_pass, clarke_wright_savings, routes_to_keys, make_neighbors, inter_route_pass
 
 
 def decode_random_key(keys, customers, demands, capacity, depot=0):
@@ -134,6 +134,16 @@ def _two_opt_keys(keys, n, demands, capacity, time_mat, dist_mat, emis_mat,
     return new_keys, best_cost
 
 
+
+def _kendall_norm(order_a, order_b):
+    """Normalised Kendall-tau distance (0..1) between two visiting orders."""
+    n = len(order_a)
+    pa = np.empty(n); pa[np.asarray(order_a)] = np.arange(n)
+    pb = np.empty(n); pb[np.asarray(order_b)] = np.arange(n)
+    da = pa[:, None] - pa[None, :]; db = pb[:, None] - pb[None, :]
+    return float(((da * db) < 0).sum() / 2) / (n * (n - 1) / 2)
+
+
 class QPSO:
     """
     Swarm optimizer with a switchable position-update rule, so QPSO and
@@ -167,8 +177,16 @@ class QPSO:
                  boost_len=6, tunnel_prob=0.5, tunnel_swaps=3,
                  diversity_boost=False, diversity_floor=0.08, diversity_boost_beta=0.85,
                  crossover_mode=None, crossover_frac=0.0, crossover_elite_frac=0.3,
+                 writeback_mode=None, mbest_mode="mean", renormalize=False, diag=False,
+                 ls_extended=False, ls_ext_within=0.02, ls_ext_k=6,
+                 jump_gap_scale=False, gap_clip=(0.5, 3.0), tunnel_mode="swap", tunnel_t=1.0, tunnel_knn=4,
                  lamarck_prob=0.0, restart_std=0.0, disruption_boost=True, update_frac=1.0,
                  w_inertia=0.4, c1=1.5, c2=1.5):
+        _sd = QPSO.STACK_DEFAULTS            # driver-level switch; empty by default => behaviour identical to the frozen version
+        if writeback_mode is None:
+            writeback_mode = _sd.get("writeback_mode")
+        if not ls_extended:
+            ls_extended = _sd.get("ls_extended", False)
         self.n = n_customers
         self.demands = demands
         self.capacity = capacity
@@ -206,6 +224,13 @@ class QPSO:
         self.diversity_floor = diversity_floor
         self.diversity_boost_beta = diversity_boost_beta
         self.crossover_mode = crossover_mode
+        self.writeback_mode = writeback_mode
+        self.ls_extended, self.ls_ext_within = ls_extended, ls_ext_within
+        self._nn = make_neighbors(time_mat, ls_ext_k) if ls_extended else None
+        self.ls_ext_k = ls_ext_k
+        self.mbest_mode = mbest_mode
+        self.renormalize = renormalize
+        self.diag = {} if diag else None
         self.crossover_frac = crossover_frac
         self.crossover_elite_frac = crossover_elite_frac
         self.lamarck_prob = lamarck_prob
@@ -215,6 +240,9 @@ class QPSO:
         self.w_inertia, self.c1, self.c2 = w_inertia, c1, c2
         self.archive = []
         self._cache = {}
+        self.jump_gap_scale, self.gap_clip = jump_gap_scale, gap_clip
+        self.tunnel_mode, self.tunnel_t, self.tunnel_knn = tunnel_mode, tunnel_t, tunnel_knn
+        self._tunnel_P = self._build_tunnel_kernel() if tunnel_mode in ("reloc_ctqw", "reloc_heat") else None
 
     def _init_positions(self):
         X = self.rng.random((self.n_particles, self.n))
@@ -244,6 +272,66 @@ class QPSO:
                                    self.tw, self.demands, self.capacity)
         fit = fitness_weighted(metrics, self.weights)
         return fit, metrics, routes
+
+    def _dpush(self, key, val):
+        self.diag.setdefault(key, []).append(float(val))
+
+    def _renorm(self, keys):
+        """Re-space a key vector uniformly while preserving its permutation
+        (decoded solution and fitness are unchanged)."""
+        r = np.argsort(np.argsort(keys, kind="stable"), kind="stable")
+        return (r + 0.5) / self.n
+
+    def _build_tunnel_kernel(self):
+        """Row-stochastic customer->customer relocation kernel from a kNN graph on travel time.
+        reloc_ctqw: |U_ij|^2 of a continuous-time quantum walk U=exp(-iAt) (t=tunnel_t, fixed a priori).
+        reloc_heat: classical diffusion exp(-tL) with t chosen to MATCH the CTQW kernel's mean row entropy (control)."""
+        from scipy.linalg import expm
+        n = self.n
+        Tm = np.array(self.time_mat, dtype=float)[1:, 1:]
+        A = np.zeros((n, n))
+        for c in range(n):
+            d = Tm[c].copy(); d[c] = np.inf
+            for j in np.argsort(d)[: self.tunnel_knn]:
+                A[c, j] = A[j, c] = 1.0
+        def offdiag(P):
+            P = np.array(P, dtype=float); np.fill_diagonal(P, 0.0)
+            return P / np.maximum(P.sum(axis=1, keepdims=True), 1e-12)
+        def mean_entropy(P):
+            return float(np.mean(-np.sum(np.where(P > 0, P * np.log(P + 1e-300), 0.0), axis=1)))
+        Pq = offdiag(np.abs(expm(-1j * A * self.tunnel_t)) ** 2)
+        if self.tunnel_mode == "reloc_ctqw":
+            return Pq
+        L = np.diag(A.sum(axis=1)) - A
+        target = mean_entropy(Pq)
+        best = min((offdiag(expm(-t * L)) for t in np.geomspace(0.02, 20, 80)), key=lambda P: abs(mean_entropy(P) - target))
+        return best
+
+    def _tunnel_relocate(self, keys):
+        """Relocate one customer next to a partner customer; keeps the particle's own key VALUES (spacing)."""
+        n = self.n
+        c = int(self.rng.integers(n))
+        if self.tunnel_mode == "reloc_uniform":
+            j = int(self.rng.integers(n - 1)); j = j + 1 if j >= c else j
+        else:
+            j = int(self.rng.choice(n, p=self._tunnel_P[c]))
+        after = self.rng.random() < 0.5
+        order = list(np.argsort(keys)); order.remove(c)
+        order.insert(order.index(j) + (1 if after else 0), c)
+        vals = np.sort(keys) + np.arange(n) * 1e-9
+        new = np.empty(n); new[order] = vals
+        return new
+
+    def _gap_weights(self, X):
+        """Per-customer jump scale = distance to the nearest other key (relative to the particle's mean gap), clipped."""
+        lo, hi = self.gap_clip
+        W = np.empty_like(X)
+        for i in range(X.shape[0]):
+            r = np.argsort(X[i]); sr = X[i][r]
+            dp = np.r_[np.inf, np.diff(sr)]; dn = np.r_[np.diff(sr), np.inf]
+            g = np.empty(X.shape[1]); g[r] = np.minimum(dp, dn)
+            W[i] = np.clip(g / max(g.mean(), 1e-12), lo, hi)
+        return W
 
     def _apply_rank_jump(self, p, jump, sign):
         """Applies the delta-well jump as a rank displacement rather than a raw
@@ -350,6 +438,7 @@ class QPSO:
             if disruption_iter is not None and it == disruption_iter and disruption_time_mats is not None:
                 self.time_mat = disruption_time_mats
                 self._cache.clear()
+                if self.ls_extended: self._nn = make_neighbors(self.time_mat, self.ls_ext_k)
                 pbest_fit[:] = np.inf
                 gbest_fit = np.inf
                 boost_left = self.boost_len * 3 if self.disruption_boost else 0
@@ -360,7 +449,10 @@ class QPSO:
             # rank particles by LAST iteration's pbest_fit so "elite" LS targeting is causal, not clairvoyant
             ls_target = set(np.argsort(pbest_fit)[:n_ls].tolist()) if do_ls_this_iter else set()
             for i in range(self.n_particles):
+                order_pre = np.argsort(X[i]) if self.diag is not None else None
                 fit, metrics, routes = self._eval(X[i])
+                if self.diag is not None:
+                    self._dpush("ls_improved", 0)  # overwritten below if LS improves
                 if do_ls_this_iter and i in ls_target:
                     imp_routes = local_search_pass(
                         routes, self.demands, self.capacity, self.time_mat,
@@ -370,10 +462,31 @@ class QPSO:
                         imp_routes, self.time_mat, self.dist_mat, self.emis_mat,
                         self.tw, self.demands, self.capacity)
                     imp_fit = fitness_weighted(imp_metrics, self.weights)
+                    if self.ls_extended and np.isfinite(gbest_fit) and min(fit, imp_fit) <= gbest_fit * (1.0 + self.ls_ext_within):
+                        base_r = imp_routes if imp_fit < fit else routes
+                        ext_r = inter_route_pass(base_r, self.demands, self.capacity, self.time_mat, self.dist_mat,
+                                                 self.emis_mat, self.tw, self.weights, self._nn, cache=self._cache)
+                        ext_m = evaluate_routes(ext_r, self.time_mat, self.dist_mat, self.emis_mat, self.tw, self.demands, self.capacity)
+                        ext_f = fitness_weighted(ext_m, self.weights)
+                        if ext_f < min(fit, imp_fit):
+                            imp_routes, imp_metrics, imp_fit = ext_r, ext_m, ext_f
                     if imp_fit < fit:
                         fit, metrics, routes = imp_fit, imp_metrics, imp_routes
+                        if self.diag is not None:
+                            self.diag["ls_improved"][-1] = 1.0
+                            self._dpush("desync_kendall", _kendall_norm(order_pre, [c for r in routes for c in r]))
                         if self.rng.random() < self.lamarck_prob:
                             X[i] = routes_to_keys(routes, self.n)
+                        if self.writeback_mode == "sorted_reassign":
+                            # minimal-disturbance write-back: keep this particle's own
+                            # key VALUES (and hence their spacing), only re-assign them
+                            # to customers so that argsort(keys) == improved visiting order
+                            order_post = [c for r in routes for c in r]
+                            vals = np.sort(X[i]) + np.arange(self.n) * 1e-9
+                            newk = np.empty(self.n); newk[order_post] = vals
+                            X[i] = np.clip(newk, 0.0, 1.0 + 1e-6)
+                if self.renormalize:
+                    X[i] = self._renorm(X[i])
                 self.archive.append((fit, X[i].copy(), metrics))
                 if fit < pbest_fit[i]:
                     pbest_fit[i], pbest[i] = fit, X[i].copy()
@@ -409,9 +522,26 @@ class QPSO:
                 if self.weighted_mbest:
                     ranks = np.empty(len(elite_idx)); ranks[np.argsort(finite[elite_idx])] = np.arange(len(elite_idx))
                     w = (len(elite_idx) - ranks).astype(float); w /= w.sum()
-                    mbest = (w[:, None] * pbest[elite_idx]).sum(axis=0)
                 else:
-                    mbest = pbest[elite_idx].mean(axis=0)
+                    w = np.full(len(elite_idx), 1.0 / len(elite_idx))
+                if self.mbest_mode == "mean":
+                    if self.weighted_mbest:
+                        mbest = (w[:, None] * pbest[elite_idx]).sum(axis=0)
+                    else:
+                        mbest = pbest[elite_idx].mean(axis=0)
+                else:
+                    # Borda consensus: average the customers' RANKS across the pbest
+                    # set (keys of different permutations are not meaningfully averageable)
+                    rk = np.argsort(np.argsort(pbest[elite_idx], axis=1), axis=1).astype(float)
+                    avg_rank = (w[:, None] * rk).sum(axis=0)
+                    if self.mbest_mode == "borda_sorted":
+                        cons = np.argsort(avg_rank, kind="stable")
+                        mbest = np.empty(self.n); mbest[cons] = (np.arange(self.n) + 0.5) / self.n
+                    else:  # "borda_mean"
+                        mbest = (avg_rank + 0.5) / self.n
+                if self.diag is not None:
+                    self._dpush("mbest_std", np.std(mbest))
+                    self._dpush("mbest_absdev", np.mean(np.abs(mbest[None, :] - X)))
                 beta = self.beta_schedule(it, self.n_iter)
                 if boost_left > 0:
                     beta = max(beta, 0.85)
@@ -428,6 +558,8 @@ class QPSO:
                     u = np.clip(self.rng.random((self.n_particles, self.n)), 1e-6, 1 - 1e-6)
                 sign = np.where(self.rng.random((self.n_particles, self.n)) > 0.5, 1.0, -1.0)
                 jump = beta * np.abs(mbest[None, :] - X) * np.log(1.0 / u)
+                if self.jump_gap_scale:
+                    jump = jump * self._gap_weights(X)
                 if self.rank_jump:
                     # Diagnosed problem: a raw-key jump of a given magnitude has an
                     # unpredictable, often tiny effect on the actual PERMUTATION
@@ -452,6 +584,12 @@ class QPSO:
                 V = self.w_inertia * V + self.c1 * r1 * (pbest - X) + self.c2 * r2 * (attractor - X)
                 X = np.clip(X + V, 0.0, 1.0)
 
+            if self.diag is not None:
+                for i in range(self.n_particles):
+                    o_old, o_new = np.argsort(X_old[i]), np.argsort(X[i])
+                    self._dpush("native_kendall", _kendall_norm(o_old, o_new))
+                    self._dpush("native_dist", np.linalg.norm(X[i] - X_old[i]))
+                    self._dpush("native_changed", float(not np.array_equal(o_old, o_new)))
             if self.update_frac < 1.0:   # dimension-wise (sparse) update: only a fraction of customers move
                 keep = self.rng.random(X.shape) >= self.update_frac
                 X = np.where(keep, X_old, X)
@@ -461,13 +599,19 @@ class QPSO:
                 for i in range(self.n_particles):
                     if self.rng.random() < self.tunnel_prob:
                         for _ in range(int(self.rng.integers(1, self.tunnel_swaps + 1))):
-                            a, b = self.rng.choice(self.n, 2, replace=False)
-                            X[i, a], X[i, b] = X[i, b], X[i, a]
+                            if self.tunnel_mode == "swap":
+                                a, b = self.rng.choice(self.n, 2, replace=False)
+                                X[i, a], X[i, b] = X[i, b], X[i, a]
+                            else:
+                                X[i] = self._tunnel_relocate(X[i])
             if self.restart_std > 0 and X.std(axis=0).mean() < self.restart_std:
                 worst = np.argsort(pbest_fit)[self.n_particles // 2:]
                 X[worst] = self.rng.random((len(worst), self.n))
                 pbest_fit[worst] = np.inf
 
+            if self.diag is not None:
+                for i in range(self.n_particles):
+                    self._dpush("total_kendall", _kendall_norm(np.argsort(X_old[i]), np.argsort(X[i])))
             X = self._apply_crossover(X, pbest, pbest_fit)
 
             history.append(gbest_fit)
@@ -481,6 +625,9 @@ class QPSO:
             "gbest_metrics": gbest_metrics,
             "history": history,
         }
+
+
+QPSO.STACK_DEFAULTS = {}
 
 
 if __name__ == "__main__":

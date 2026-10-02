@@ -226,3 +226,89 @@ def routes_to_keys(routes, n):
     for pos, c in zip(ranks, order):
         keys[c] = pos / n
     return keys
+
+
+# ---------------------------------------------------------------- 5. extended (inter-route) neighbourhoods
+def make_neighbors(time_mat, k=6):
+    """k nearest customers (by travel time) for every customer -> granular neighbourhoods."""
+    n = time_mat.shape[0] - 1
+    nn = []
+    for c in range(n):
+        d = np.array(time_mat[c + 1, 1:], dtype=float); d[c] = np.inf
+        nn.append(set(np.argsort(d)[:k].tolist()))
+    return nn
+
+
+def inter_route_pass(routes, demands, capacity, time_mat, dist_mat, emis_mat, time_windows_s,
+                     weights, nn, depot_idx=0, cache=None, max_rounds=2, seg_max=3):
+    """
+    Inter-route improvement beyond the basic pass:
+      (1) relocate a 1..seg_max customer segment (both orientations) to ANY other route,
+      (2) swap one customer between two routes,
+      (3) 2-opt* tail exchange between two routes.
+    Candidates are restricted to granular neighbourhoods (nearest-neighbour lists) and every cost
+    includes the fixed per-route cost, so emptying a route is correctly rewarded.
+    Shared infrastructure: used identically by QPSO, classical PSO and the memetic GA when enabled.
+    """
+    w_r = weights[3]
+    routes = [list(r) for r in routes if r]
+    rc = lambda r: (route_cost(r, time_mat, dist_mat, emis_mat, time_windows_s, demands, weights,
+                                depot_idx, cache) + w_r) if r else 0.0
+    ld = lambda r: sum(demands[c] for c in r)
+    for _ in range(max_rounds):
+        improved = False
+        for a in range(len(routes)):
+            for b in range(len(routes)):
+                if a == b or not routes[a] or not routes[b]:
+                    continue
+                ra, rb = routes[a], routes[b]
+                base = rc(ra) + rc(rb); load_b = ld(rb)
+                best_d, best_mv = -1e-9, None
+                for L in range(1, min(seg_max, len(ra)) + 1):          # (1) segment relocation a -> b
+                    for i in range(len(ra) - L + 1):
+                        seg = ra[i:i + L]
+                        if load_b + ld(seg) > capacity:
+                            continue
+                        near = nn[seg[0]] | nn[seg[-1]]
+                        new_a = ra[:i] + ra[i + L:]; ca = rc(new_a)
+                        for p in range(len(rb) + 1):
+                            if not ((p > 0 and rb[p - 1] in near) or (p < len(rb) and rb[p] in near)):
+                                continue
+                            for s in ((seg, seg[::-1]) if L > 1 else (seg,)):
+                                nb = rb[:p] + s + rb[p:]
+                                d = ca + rc(nb) - base
+                                if d < best_d:
+                                    best_d, best_mv = d, (new_a, nb)
+                if a < b:
+                    la = ld(ra)
+                    for i in range(len(ra)):                            # (2) swap
+                        for j in range(len(rb)):
+                            if rb[j] not in nn[ra[i]] and ra[i] not in nn[rb[j]]:
+                                continue
+                            if la - demands[ra[i]] + demands[rb[j]] > capacity or load_b - demands[rb[j]] + demands[ra[i]] > capacity:
+                                continue
+                            na = ra[:i] + [rb[j]] + ra[i + 1:]; nb = rb[:j] + [ra[i]] + rb[j + 1:]
+                            d = rc(na) + rc(nb) - base
+                            if d < best_d:
+                                best_d, best_mv = d, (na, nb)
+                    for i in range(len(ra) + 1):                        # (3) 2-opt* tail exchange
+                        for j in range(len(rb) + 1):
+                            if (i == len(ra) and j == len(rb)) or (i == 0 and j == 0):
+                                continue
+                            ok = (i > 0 and j < len(rb) and rb[j] in nn[ra[i - 1]]) or \
+                                 (j > 0 and i < len(ra) and ra[i] in nn[rb[j - 1]])
+                            if not ok:
+                                continue
+                            na, nb = ra[:i] + rb[j:], rb[:j] + ra[i:]
+                            if ld(na) > capacity or ld(nb) > capacity:
+                                continue
+                            d = rc(na) + rc(nb) - base
+                            if d < best_d:
+                                best_d, best_mv = d, (na, nb)
+                if best_mv is not None:
+                    routes[a], routes[b] = best_mv
+                    improved = True
+        routes = [r for r in routes if r]
+        if not improved:
+            break
+    return routes

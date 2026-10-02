@@ -1,0 +1,66 @@
+PHASE 1 - OR-Tools configs on TUNING instances, 5 s (mean cost / best-for-instance; 1.000 = best everywhere)
+  LOCAL_CHEAPEST_INSERTION|GUIDED_LOCAL_SEARCH         1.0041   8579  45943  73655  64080
+  SAVINGS|GUIDED_LOCAL_SEARCH                          1.0044   8579  45770  72811  65138
+  PARALLEL_CHEAPEST_INSERTION|GUIDED_LOCAL_SEARCH      1.0074   8605  45770  73359  65242
+  PATH_CHEAPEST_ARC|GUIDED_LOCAL_SEARCH                1.0112   8751  45770  73359  65138
+  AUTOMATIC|GUIDED_LOCAL_SEARCH                        1.0112   8751  45770  73359  65138
+  SAVINGS|TABU_SEARCH                                  1.0131   8667  46162  73997  65138
+  PARALLEL_CHEAPEST_INSERTION|TABU_SEARCH              1.0134   8837  46063  73997  64080
+  PATH_CHEAPEST_ARC|TABU_SEARCH                        1.0148   8751  46674  72954  65138
+  AUTOMATIC|TABU_SEARCH                                1.0148   8751  46674  72954  65138
+  ORIG                                                 1.0157   8904  45770  73359  65138
+  PARALLEL_CHEAPEST_INSERTION|SIMULATED_ANNEALING      1.0175   8837  46063  73997  65138
+  SAVINGS|SIMULATED_ANNEALING                          1.0247   8667  46063  73997  68246
+  LOCAL_CHEAPEST_INSERTION|SIMULATED_ANNEALING         1.0414   8579  53349  72747  64080
+  LOCAL_CHEAPEST_INSERTION|TABU_SEARCH                 1.0417   8579  53349  72824  64080
+  PATH_CHEAPEST_ARC|SIMULATED_ANNEALING                1.0424   8622  46674  77507  69159
+  AUTOMATIC|SIMULATED_ANNEALING                        1.0424   8622  46674  77507  69159
+CHOSEN: LOCAL_CHEAPEST_INSERTION|GUIDED_LOCAL_SEARCH {'first_solution': 'LOCAL_CHEAPEST_INSERTION', 'metaheuristic': 'GUIDED_LOCAL_SEARCH', 'scale': 100, 'precise': True}
+done Delhi-Aug12-3pm-s87
+done Delhi-Aug19fest-6pm-s81
+done C1-synthetic
+done C2-synthetic
+done R1-synthetic
+done R2-synthetic
+done RC1-synthetic
+done RC2-synthetic
+
+PHASE 2 - anytime comparison, n=24 (mean cost; lower = better). OR-Tools given the SAME wall-clock as QPSO at each level.
+
+ level 1: QPSO 25 iters  | GA 60 gens
+  instance                     QPSO+WB    t(s) |     GA+LS    t(s) |   OR-hard   OR-orig   T_or
+  Delhi-Aug12-3pm-s87             9242     1.5 |      9477     1.1 |      9275      9096    1.5
+  Delhi-Aug19fest-6pm-s81         7090     1.9 |      6781     1.4 |      6346      6498    1.9
+  C1-synthetic                   48289     1.5 |     44733     1.2 |     45071     43912    1.5
+  C2-synthetic                   51260     1.3 |     49272     1.3 |     45754     45754    1.3
+  R1-synthetic                   77830     1.2 |     76877     1.1 |     71361     71361    1.2
+  R2-synthetic                   74330     1.1 |     67494     1.0 |     65126     65126    1.1
+  RC1-synthetic                  62397     1.4 |     61946     1.3 |     57744     60909    1.4
+  RC2-synthetic                  63921     1.6 |     67322     1.4 |     62671     66491    1.6
+  QPSO < OR-hard on 1/8 | GA < OR-hard on 1/8 | mean gap QPSO +8.0% (Delhi only +5.7%), GA +5.3%
+
+ level 2: QPSO 80 iters  | GA 190 gens
+  instance                     QPSO+WB    t(s) |     GA+LS    t(s) |   OR-hard   OR-orig   T_or
+  Delhi-Aug12-3pm-s87             9158     3.8 |      9066     2.8 |      9275      9045    3.8
+  Delhi-Aug19fest-6pm-s81         6765     4.5 |      6758     3.4 |      6346      6346    4.5
+  C1-synthetic                   45280     3.2 |     44733     2.8 |     42957     42792    3.2
+  C2-synthetic                   47434     3.4 |     46794     3.1 |     45754     45754    3.4
+  R1-synthetic                   76295     3.0 |     76727     2.8 |     71361     71361    3.0
+  R2-synthetic                   73430     3.0 |     66551     2.7 |     65126     65126    3.0
+  RC1-synthetic                  61208     3.6 |     60621     3.2 |     57744     57332    3.6
+  RC2-synthetic                  64230     3.5 |     67301     3.4 |     62671     65696    3.5
+  QPSO < OR-hard on 1/8 | GA < OR-hard on 1/8 | mean gap QPSO +5.3% (Delhi only +2.7%), GA +4.1%
+
+ level 3: QPSO 250 iters  | GA 600 gens
+  instance                     QPSO+WB    t(s) |     GA+LS    t(s) |   OR-hard   OR-orig   T_or
+  Delhi-Aug12-3pm-s87             9049     8.9 |      9066     7.8 |      9275      9045    8.9
+  Delhi-Aug19fest-6pm-s81         6755    10.6 |      6741     8.7 |      6346      6346   10.6
+  C1-synthetic                   42951     7.7 |     44416     7.9 |     42792     42792    7.7
+  C2-synthetic                   46475     7.1 |     46794     8.3 |     45754     45754    7.1
+  R1-synthetic                   73122     7.6 |     76727     8.2 |     71361     71361    7.6
+  R2-synthetic                   66332     6.5 |     66551     7.3 |     65126     65126    6.5
+  RC1-synthetic                  61705     9.5 |     60431     9.1 |     57332     57332    9.5
+  RC2-synthetic                  63556     8.3 |     66643     9.5 |     62671     62671    8.3
+  QPSO < OR-hard on 1/8 | GA < OR-hard on 1/8 | mean gap QPSO +2.4% (Delhi only +2.0%), GA +3.9%
+
+PRE-REGISTERED CRITERION (QPSO < hardened OR-Tools at matched time, largest level, >= 5/8): NOT MET (1/8)

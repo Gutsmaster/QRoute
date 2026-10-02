@@ -1,0 +1,16 @@
+=== C1 DISRUPTION (n=24): after an 8x slowdown on the incumbent plan's busiest route ===
+instance                   incumbent   archive  QPSOwarm   OR warm   OR cold    T(s)
+Delhi-9am-s201                  8195      5082      4923      4790      ...    0.05
+Delhi-Aug19fest-6pm-s203       52248      9510      8656      8431      ...    0.05
+C1-synthetic                  319530     45748     37766     36822      ...    0.05
+C2-synthetic                  374128     63764     53826     54087      ...    0.05
+R1-synthetic                  586464     88106     73369     97087      ...    0.05
+R2-synthetic                  544323     77006     79900     81336      ...    0.05
+RC1-synthetic                 208005     68971     70858     68971      ...    0.05
+archive < warm OR-Tools on 2/7 | mean gap archive +6.6%
+QPSO warm-restart vs warm OR-Tools: mean -2.3%, wins 3/7 (incl. R1 -24%)
+PRE-REGISTERED C1 CRITERION (archive beats warm OR on >=5/6): NOT MET
+
+=== C2 BUDGET (n=24, ~30s matched wall-clock) ===
+QPSO < OR-Tools on 1/8 | mean gap +0.65% | Delhi-only +1.16% | 4/8 exact ties | QPSO < GA on 3/8
+PRE-REGISTERED C2 CRITERION (QPSO gap<=0 on >=5/8): NOT MET

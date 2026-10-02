@@ -1,0 +1,42 @@
+
+F1  earlier-rejected ideas, re-tested (vs Q base; positive = better)
+  scalar_u           vs base             wins 12 losses  4 ties  8  mean  +0.29%  p=0.136  Holm=0.815
+  elite15            vs base             wins  9 losses  4 ties 11  mean  +0.11%  p=0.349  Holm=1.000
+  scalar+elite       vs base             wins  8 losses  4 ties 12  mean  -0.01%  p=1.000  Holm=1.000
+  borda_sorted       vs base             wins  7 losses 10 ties  7  mean  -0.18%  p=0.235  Holm=1.000
+  borda_mean         vs base             wins 10 losses  6 ties  8  mean  +0.18%  p=0.239  Holm=1.000
+  rank_jump          vs base             wins  9 losses  7 ties  8  mean  +0.11%  p=0.979  Holm=1.000
+
+F2  beta schedules (vs Q base, base = 0.45->0.1)
+  beta0.9-0.3        vs base             wins  7 losses 12 ties  5  mean  -0.27%  p=0.187  Holm=0.933
+  beta0.7-0.2        vs base             wins  9 losses  7 ties  8  mean  -0.03%  p=0.446  Holm=1.000
+  beta0.6-0.15       vs base             wins  5 losses  8 ties 11  mean  -0.04%  p=0.589  Holm=1.000
+  beta0.3-0.05       vs base             wins  8 losses  7 ties  9  mean  -0.04%  p=0.740  Holm=1.000
+  beta0.2-0.02       vs base             wins 13 losses  4 ties  7  mean  +0.16%  p=0.266  Holm=1.000
+  beta1.0-0.5        vs base             wins  6 losses 14 ties  4  mean  -0.81%  p=0.025  Holm=0.150
+
+F3a tunneling kernel vs swap tunneling (shared infra)
+  Q reloc_uniform    vs base             wins 11 losses  6 ties  7  mean  +0.13%  p=0.571  Holm=1.000
+  Q reloc_ctqw       vs base             wins 10 losses  4 ties 10  mean  +0.05%  p=0.443  Holm=1.000
+  Q reloc_heat       vs base             wins 10 losses  7 ties  7  mean  +0.24%  p=0.498  Holm=1.000
+  P reloc_uniform    vs P base           wins 12 losses  5 ties  7  mean  +0.38%  p=0.049  Holm=0.296
+  P reloc_ctqw       vs P base           wins 13 losses  5 ties  6  mean  +0.69%  p=0.051  Holm=0.296
+  P reloc_heat       vs P base           wins 10 losses  5 ties  9  mean  +0.67%  p=0.103  Holm=0.413
+
+F3b attribution controls: CTQW vs heat(matched entropy) vs uniform, same move shape
+  Q reloc_ctqw       vs Q reloc_heat     wins  7 losses  7 ties 10  mean  -0.20%  p=0.948  Holm=1.000
+  Q reloc_ctqw       vs Q reloc_uniform  wins  7 losses  8 ties  9  mean  -0.09%  p=0.931  Holm=1.000
+  P reloc_ctqw       vs P reloc_heat     wins  6 losses  4 ties 14  mean  +0.02%  p=0.508  Holm=1.000
+  P reloc_ctqw       vs P reloc_uniform  wins  8 losses  6 ties 10  mean  +0.31%  p=0.379  Holm=1.000
+
+F3c quantum vs classical update under each tunneling mode
+  base               vs P base           wins  9 losses  5 ties 10  mean  +0.48%  p=0.121  Holm=0.483
+  Q reloc_uniform    vs P reloc_uniform  wins  9 losses  6 ties  9  mean  +0.22%  p=0.379  Holm=1.000
+  Q reloc_ctqw       vs P reloc_ctqw     wins  7 losses  8 ties  9  mean  -0.17%  p=0.642  Holm=1.000
+  Q reloc_heat       vs P reloc_heat     wins  9 losses  8 ties  7  mean  +0.04%  p=0.695  Holm=1.000
+
+F4  permutation-boundary-aware jump (vs Q base)
+  gap(0.5,3)         vs base             wins  7 losses  9 ties  8  mean  -0.19%  p=0.507  Holm=1.000
+  gap(0.25,4)        vs base             wins 10 losses  5 ties  9  mean  +0.08%  p=0.758  Holm=1.000
+
+complete variants: 22/22

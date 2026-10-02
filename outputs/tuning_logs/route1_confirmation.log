@@ -1,0 +1,33 @@
+done Delhi-Aug12-9am-s111
+done Delhi-Aug19fest-noon-s117
+resumed; complete: ['Delhi-Aug12-9am-s111', 'Delhi-Aug19fest-noon-s117']
+done C1-synthetic
+done C2-synthetic
+done R1-synthetic
+done R2-synthetic
+done RC1-synthetic
+done RC2-synthetic
+
+MEAN COST per NEW instance (lower = better); seconds = mean per run
+algorithm   Delhi-Aug12- Delhi-Aug19f C1-synthetic C2-synthetic R1-synthetic R2-synthetic RC1-syntheti RC2-syntheti   sec
+Q+WB                5119        10843        42193        47166        62908        64011        56758        65467   3.7
+Q+WB+EXT            5118        10592        40646        45779        60778        63601        56212        64614   3.7
+P+WB                5164        10709        43745        48119        66136        65584        57649        66673   4.3
+P+WB+EXT            5135        10438        41914        46408        60778        63601        56796        64614   4.3
+GA+LS               5169        10875        42514        46443        63520        65096        57164        65679   1.5
+GA+LS+EXT           5115        10561        41453        45660        60778        63524        56513        64614   2.5
+OR hard@T           5010        10506        40651        46015        60778        63485        56231        64209
+OR orig@T           5115        10495        42265        45558        60778        63718        56231        64565
+OR hard@10s         5010        10462        39730        45515        60778        63485        56231        64209
+
+PRE-REGISTERED TESTS (48 pairs; positive = first better)
+  H1 QPSO+EXT vs QPSO        wins 37/48  mean  +1.88%  p=0.0000  Holm-p=0.0000
+  H2 PSO+EXT vs PSO          wins 40/48  mean  +3.26%  p=0.0000  Holm-p=0.0000
+  H3 QPSO+EXT vs PSO+EXT     wins 18/48  mean  +0.52%  p=0.0179  Holm-p=0.0357
+  H4 QPSO+EXT vs GA+EXT      wins 17/48  mean  +0.21%  p=0.7084  Holm-p=0.7084
+
+vs OR-Tools (instance means; OR single run):
+  QPSO+EXT       < OR-hard@T on 3/8 (mean gap +0.4%) | < best(hard,orig)@T on 2/8 (+0.5%) | vs OR-hard@10s +0.9% (1/8) | Delhi-only gap vs hard@T +1.5%
+  GA+EXT         < OR-hard@T on 1/8 (mean gap +0.6%) | < best(hard,orig)@T on 0/8 (+0.8%) | vs OR-hard@10s +1.1% (0/8) | Delhi-only gap vs hard@T +1.3%
+  PSO+EXT        < OR-hard@T on 1/8 (mean gap +1.0%) | < best(hard,orig)@T on 1/8 (+1.1%) | vs OR-hard@10s +1.4% (1/8) | Delhi-only gap vs hard@T +0.9%
+  QPSO (no EXT)  < OR-hard@T on 0/8 (mean gap +2.4%) | < best(hard,orig)@T on 0/8 (+2.5%) | vs OR-hard@10s +2.9% (0/8) | Delhi-only gap vs hard@T +2.7%

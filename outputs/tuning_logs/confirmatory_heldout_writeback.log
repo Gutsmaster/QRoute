@@ -1,0 +1,35 @@
+done Delhi-9am-s7
+done Delhi-6pm-s11
+done C1-synthetic
+done C2-synthetic
+resumed; already complete: ['Delhi-9am-s7', 'Delhi-6pm-s11', 'C1-synthetic', 'C2-synthetic']
+done R1-synthetic
+done R2-synthetic
+done RC1-synthetic
+done RC2-synthetic
+
+MEAN COST per held-out instance, 6 fresh seeds (lower = better)
+algorithm          Delhi-9am-s7  Delhi-6pm-s11   C1-synthetic   C2-synthetic   R1-synthetic   R2-synthetic  RC1-synthetic  RC2-synthetic   meanGap%
+QPSO (frozen)              5459          10154          36863          55224          72702          86045          70326          70568      9.6
+QPSO+WB                    5412           9938          32471          53395          69912          77199          62212          67349      2.7
+PSO (frozen)               5444          10104          35054          58052          74908          82439          68789          70215      8.9
+PSO+WB                     5454          10265          33898          54536          71070          80967          64561          68264      5.6
+GA+LS (memetic)            5431          10470          32764          52780          70570          79948          63094          67627      4.2
+GA (plain)                 6144          13319          40415          61040          83641          92761          79616          78582     24.6
+ACO                        5914          11454          63213          88376         129521         154239         109130         125675     71.4
+TunedLS                    7069          14552          37347         118486         101949          97818          84374          95148     49.2
+OR-Tools                   5417           9785          29814          52041          68985          76244          60911          64913      0.0
+
+PRE-REGISTERED TESTS (48 pairs; mean = % improvement of first over second, positive = first better)
+  H1 QPSO+WB vs QPSO(frozen)             wins 44/48  mean  +5.96%  p=0.0000  Holm-p=0.0000
+  H2 PSO+WB vs PSO(frozen)               wins 34/48  mean  +2.81%  p=0.0001  Holm-p=0.0004
+  H3 QPSO+WB vs PSO+WB (same infra)      wins 36/48  mean  +2.54%  p=0.0004  Holm-p=0.0008
+  H4 QPSO+WB vs memetic GA               wins 25/48  mean  +1.29%  p=0.1542  Holm-p=0.1542
+
+DESCRIPTIVE (not pre-registered): QPSO+WB vs the other baselines
+  vs GA (plain)       wins 48/48  mean  +17.09%  p=0.00000
+  vs ACO              wins 48/48  mean  +36.65%  p=0.00000
+  vs TunedLS          wins 47/48  mean  +28.89%  p=0.00000
+  vs QPSO (frozen)    wins 44/48  mean   +5.96%  p=0.00000
+
+QPSO+WB gap to OR-Tools per instance: Delhi-9am-s -0.1%, Delhi-6pm-s +1.6%, C1-syntheti +8.9%, C2-syntheti +2.6%, R1-syntheti +1.3%, R2-syntheti +1.3%, RC1-synthet +2.1%, RC2-synthet +3.8%  | mean +2.7%

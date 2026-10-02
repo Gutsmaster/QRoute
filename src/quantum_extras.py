@@ -86,7 +86,7 @@ def reverse_annealing_schedule(disruption_iters, ramp_up=0.9, decay_rate=0.5,
 # ------------------------------------------------------------- 3. hierarchical QPSO
 def hierarchical_qpso(customers_xy, demands, capacity, time_windows_s,
                        time_mat, dist_mat, emis_mat, n_zones=3,
-                       n_particles=20, n_iter=80, seed=0):
+                       n_particles=20, n_iter=80, seed=0, qpso_kwargs=None):
     """
     City -> zones -> routes. KMeans clusters customers into `n_zones`
     geographic zones; QPSO solves each zone's mini-VRP independently
@@ -122,7 +122,7 @@ def hierarchical_qpso(customers_xy, demands, capacity, time_windows_s,
 
         qpso = QPSO(n_customers=zm, demands=zone_demands, capacity=capacity,
                     time_windows_s=zone_tw, time_mat=zT, dist_mat=zD, emis_mat=zE,
-                    n_particles=n_particles, n_iter=n_iter, seed=seed + z)
+                    n_particles=n_particles, n_iter=n_iter, seed=seed + z, **(qpso_kwargs or {}))
         res = qpso.run()
         per_zone_history.append(res["history"])
         zone_routes_local = res["gbest_routes"]

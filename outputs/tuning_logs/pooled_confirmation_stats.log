@@ -1,0 +1,9 @@
+Mean %% improvement of FIRST over SECOND (positive = first better), 95%% bootstrap CI over paired runs
+
+comparison                         confirmation 1 (48)    confirmation 2 (48)    POOLED (96, post-hoc) 
+H1 QPSO+WB vs QPSO(frozen)         +5.96% [+4.43,+7.60] p=0.0000       +5.25% [+3.99,+6.67] p=0.0000       +5.61% [+4.60,+6.68] p=0.0000     
+H2 PSO+WB vs PSO(frozen)           +2.81% [+1.18,+4.45] p=0.0001       +3.18% [+2.12,+4.27] p=0.0000       +3.00% [+2.03,+3.98] p=0.0000     
+H3 QPSO+WB vs PSO+WB               +2.54% [+1.22,+3.90] p=0.0004       +2.28% [+0.93,+3.54] p=0.0001       +2.41% [+1.45,+3.36] p=0.0000     
+H4 QPSO+WB vs memetic GA           +1.29% [+0.04,+2.63] p=0.1542       +0.54% [-0.71,+1.75] p=0.2566       +0.91% [+0.02,+1.82] p=0.0606     
+
+(CI for H4 spanning zero => no detectable difference vs the memetic GA; it does NOT prove equivalence.)

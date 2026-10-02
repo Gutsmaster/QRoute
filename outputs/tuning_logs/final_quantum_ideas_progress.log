@@ -1,0 +1,23 @@
+variant done: base
+variant done: scalar_u
+variant done: elite15
+variant done: scalar+elite
+variant done: borda_sorted
+variant done: borda_mean
+variant done: rank_jump
+variant done: Q reloc_uniform
+variant done: Q reloc_ctqw
+variant done: Q reloc_heat
+variant done: P base
+variant done: P reloc_uniform
+variant done: P reloc_ctqw
+variant done: P reloc_heat
+variant done: gap(0.5,3)
+variant done: gap(0.25,4)
+variant done: beta0.9-0.3
+variant done: beta0.7-0.2
+variant done: beta0.6-0.15
+variant done: beta0.3-0.05
+variant done: beta0.2-0.02
+variant done: beta1.0-0.5
+ALL VARIANTS COMPLETE

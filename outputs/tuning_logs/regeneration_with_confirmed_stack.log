@@ -34,3 +34,4 @@ single-run (seed 1): QPSO=8612, QPSO + quantum-walk init bias=8579, PSO (same in
   QPSO vs ACO: mean improvement +43.8%  wins 100% of 32  p=0.0000
   QPSO vs TunedLS(HGS-inspired): mean improvement +33.4%  wins 100% of 32  p=0.0000
   ABLATION (identical infrastructure, only update rule differs): QPSO better in 10/32, mean +0.46%, p=0.2012
+=== DONE in 673s ===

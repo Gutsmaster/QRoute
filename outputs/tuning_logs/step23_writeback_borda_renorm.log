@@ -1,0 +1,33 @@
+done Delhi
+done C1
+done R1
+done RC1
+
+MEAN FITNESS per instance (lower=better); gap vs memetic GA (same seeds)
+variant                     Delhi       C1       R1      RC1   gapGA%   sec
+Q0  baseline                 8818    48320    76973    69008    +2.5    3.9
+Q+WB  writeback              8718    46952    74826    66091    -0.3    3.5
+Q+Bs  borda-sorted           8816    48757    79748    71312    +4.5    4.0
+Q+Bm  borda-mean             8838    48683    79304    67562    +3.0    3.9
+Q+RN  renorm                 8684    48686    79198    71114    +3.9    3.9
+Q+RN+Bs                      8838    48674    78173    71685    +4.2    3.9
+Q+WB+Bs                      8815    47357    75129    66048    +0.3    3.8
+P0  baseline                 8855    49040    77913    72139    +4.5    4.1
+P+WB  writeback              8645    47743    75821    66526    +0.4    4.1
+P+RN  renorm                 8837    48313    79587    73185    +5.0    4.1
+GA+LS memetic (ref)          8642    46433    73873    69134
+
+FAMILY A: variant vs its own baseline (paired, 24 pairs; positive = variant better)
+  Q+WB  writeback        vs Q0             wins 16/24  mean  +2.64%  p=0.027  Holm-p=0.162
+  Q+Bs  borda-sorted     vs Q0             wins  8/24  mean  -2.07%  p=0.084  Holm-p=0.336
+  Q+Bm  borda-mean       vs Q0             wins  9/24  mean  -0.58%  p=0.422  Holm-p=0.845
+  Q+RN  renorm           vs Q0             wins 10/24  mean  -1.37%  p=0.101  Holm-p=0.336
+  Q+RN+Bs                vs Q0             wins  8/24  mean  -1.65%  p=0.037  Holm-p=0.183
+  Q+WB+Bs                vs Q0             wins 17/24  mean  +2.12%  p=0.010  Holm-p=0.068
+  P+WB  writeback        vs P0             wins 19/24  mean  +3.81%  p=0.001  Holm-p=0.009
+  P+RN  renorm           vs P0             wins 12/24  mean  -0.51%  p=0.546  Holm-p=0.845
+
+FAMILY B: quantum vs classical under IDENTICAL infrastructure (positive = quantum better)
+  Q0  baseline           vs P0  baseline     wins 16/24  mean  +1.82%  p=0.021  Holm-p=0.063
+  Q+WB  writeback        vs P+WB  writeback  wins 14/24  mean  +0.67%  p=0.115  Holm-p=0.231
+  Q+RN  renorm           vs P+RN  renorm     wins 13/24  mean  +0.98%  p=0.378  Holm-p=0.378

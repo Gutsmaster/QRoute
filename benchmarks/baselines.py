@@ -21,7 +21,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from qpso_core import decode_random_key, evaluate_routes, fitness_weighted
-from local_search import split_optimal, local_search_pass
+from local_search import split_optimal, local_search_pass, make_neighbors, inter_route_pass
 
 
 # ---------------------------------------------------------------- classical PSO
@@ -80,7 +80,8 @@ class GeneticAlgorithm:
                  time_mat, dist_mat, emis_mat, pop_size=40, n_gen=120,
                  weights=(1.0, 0.02, 0.01, 300.0), seed=0,
                  mutation_rate=0.15, elite_frac=0.1, use_optimal_split=True,
-                 local_search=False, lamarck=False, ls_window=6):
+                 local_search=False, lamarck=False, ls_window=6,
+                 ls_extended=False, ls_ext_within=0.02, ls_ext_k=6):
         self.n = n_customers
         self.demands, self.capacity, self.tw = demands, capacity, time_windows_s
         self.time_mat, self.dist_mat, self.emis_mat = time_mat, dist_mat, emis_mat
@@ -89,6 +90,9 @@ class GeneticAlgorithm:
         self.mutation_rate, self.elite_frac = mutation_rate, elite_frac
         self.use_optimal_split = use_optimal_split
         self.local_search, self.lamarck, self.ls_window = local_search, lamarck, ls_window
+        self.ls_extended, self.ls_ext_within = ls_extended, ls_ext_within
+        self._nn = make_neighbors(time_mat, ls_ext_k) if ls_extended else None
+        self._best = float('inf')
         self._cache = {}
 
     def _decode_perm(self, perm):
@@ -111,9 +115,19 @@ class GeneticAlgorithm:
             m2 = evaluate_routes(imp, self.time_mat, self.dist_mat, self.emis_mat,
                                   self.tw, self.demands, self.capacity)
             f2 = fitness_weighted(m2, self.weights)
+            cur_routes = routes
             if f2 < fit:
                 fit, m = f2, m2
                 new_perm = np.array([c for r in imp for c in r])
+                cur_routes = imp
+            if self.ls_extended and np.isfinite(self._best) and fit <= self._best * (1.0 + self.ls_ext_within):
+                ext = inter_route_pass(cur_routes, self.demands, self.capacity, self.time_mat, self.dist_mat,
+                                       self.emis_mat, self.tw, self.weights, self._nn, cache=self._cache)
+                m3 = evaluate_routes(ext, self.time_mat, self.dist_mat, self.emis_mat, self.tw, self.demands, self.capacity)
+                f3 = fitness_weighted(m3, self.weights)
+                if f3 < fit:
+                    fit, m = f3, m3
+                    new_perm = np.array([c for r in ext for c in r])
         self._last_improved = new_perm
         return fit, m
 
@@ -146,6 +160,7 @@ class GeneticAlgorithm:
             if scored[0][0][0] < gbest_fit:
                 gbest_fit, gbest_metrics = scored[0][0]
                 gbest = scored[0][1]
+            self._best = gbest_fit
             history.append(gbest_fit)
             elites = [s[1] for s in scored[:n_elite]]
             new_pop = list(elites)
@@ -375,7 +390,9 @@ def solve_ortools(n_customers, demands, capacity, time_mat, dist_mat,
 
 
 def solve_ortools_cvrptw(n_customers, demands, capacity, tw, time_mat, dist_mat, emis_mat,
-                          weights=(1.0, 0.02, 0.01, 300.0), time_limit_s=5, depot_idx=0):
+                          weights=(1.0, 0.02, 0.01, 300.0), time_limit_s=5, depot_idx=0,
+                          first_solution="PATH_CHEAPEST_ARC", metaheuristic="GUIDED_LOCAL_SEARCH",
+                          scale=1, precise=False, warm_start=None):
     """OR-Tools CVRPTW with the SAME weighted objective and soft time-window
     penalty (2 per second late) used to score every other algorithm, so the
     reference is a like-for-like opponent, not a time-only solver."""
@@ -384,20 +401,21 @@ def solve_ortools_cvrptw(n_customers, demands, capacity, tw, time_mat, dist_mat,
     n_nodes = n_customers + 1
     manager = pywrapcp.RoutingIndexManager(n_nodes, n_customers, depot_idx)
     routing = pywrapcp.RoutingModel(manager)
-    cost = (w_t * time_mat + w_d * dist_mat + w_e * emis_mat)
+    cost = (w_t * time_mat + w_d * dist_mat + w_e * emis_mat) * scale
 
     def cost_cb(a, b_):
         return int(round(cost[manager.IndexToNode(a), manager.IndexToNode(b_)]))
     cidx = routing.RegisterTransitCallback(cost_cb)
     routing.SetArcCostEvaluatorOfAllVehicles(cidx)
-    routing.SetFixedCostOfAllVehicles(int(w_r))
+    routing.SetFixedCostOfAllVehicles(int(round(w_r * scale)))
 
     dem = [0] + list(demands)
     didx = routing.RegisterUnaryTransitCallback(lambda a: int(dem[manager.IndexToNode(a)]))
     routing.AddDimensionWithVehicleCapacity(didx, 0, [int(capacity)] * n_customers, True, "Cap")
 
     def time_cb(a, b_):
-        return int(time_mat[manager.IndexToNode(a), manager.IndexToNode(b_)])
+        t_ = time_mat[manager.IndexToNode(a), manager.IndexToNode(b_)]
+        return int(round(t_)) if precise else int(t_)
     tidx = routing.RegisterTransitCallback(time_cb)
     horizon = 86400
     routing.AddDimension(tidx, horizon, horizon, True, "Time")
@@ -406,12 +424,29 @@ def solve_ortools_cvrptw(n_customers, demands, capacity, tw, time_mat, dist_mat,
         idx = manager.NodeToIndex(c + 1)
         earliest, latest = tw[c]
         tdim.CumulVar(idx).SetRange(int(earliest), horizon)
-        tdim.SetCumulVarSoftUpperBound(idx, int(latest), 2)
+        tdim.SetCumulVarSoftUpperBound(idx, int(latest), int(2 * scale))
 
     params = pywrapcp.DefaultRoutingSearchParameters()
-    params.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
-    params.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
-    params.time_limit.FromSeconds(time_limit_s)
+    params.first_solution_strategy = getattr(routing_enums_pb2.FirstSolutionStrategy, first_solution)
+    params.local_search_metaheuristic = getattr(routing_enums_pb2.LocalSearchMetaheuristic, metaheuristic)
+    params.time_limit.FromMilliseconds(int(round(1000 * time_limit_s)))
+    if warm_start:
+        # fair disruption comparison: OR-Tools re-optimises FROM the surviving plan,
+        # exactly as the archive/QPSO do -- never from scratch
+        routing.CloseModelWithParameters(params)
+        init = routing.ReadAssignmentFromRoutes([list(r) and [c + 1 for c in r] for r in warm_start if r], True)
+        if init is not None:
+            sol = routing.SolveFromAssignmentWithParameters(init, params)
+            if sol is not None:
+                routes = []
+                for v in range(n_customers):
+                    i = routing.Start(v); r = []
+                    while not routing.IsEnd(i):
+                        nd = manager.IndexToNode(i)
+                        if nd != depot_idx: r.append(nd - 1)
+                        i = sol.Value(routing.NextVar(i))
+                    if r: routes.append(r)
+                return routes
     sol = routing.SolveWithParameters(params)
     if sol is None:
         return None
