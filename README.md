@@ -16,7 +16,7 @@ The project is built around two questions:
 
 An interactive Streamlit dashboard presents the results in seven tabs: Overview, Live Route Map, Real-anomaly tests, Benchmarking, Convergence & Pareto, Scalability, and Honesty & protocol.
 
-The route map is also generated as a standalone file: open [`outputs/map.html`](outputs/map.html) in a browser (QPSO plan in red, OR-Tools plan in green, on the real central-Delhi road subgraph).
+The route map is also generated as a standalone file: open [`outputs/map.html`](outputs/map.html) in a browser (QPSO plan in red, OR-Tools plan in green, on the real central-Delhi road See the route map in the **Live Route Map** tab of the [live demo](https://qroute.streamlit.app) (QPSO plan in red, OR-Tools plan in green, on the real central-Delhi road subgraph). A standalone copy is saved as `outputs/map.html`; download it and open it in a browser.
 
 | Convergence | Pareto trade-offs |
 |---|---|
