@@ -1,4 +1,4 @@
-# SIH26137 — Quantum-Inspired Intelligent Traffic Route Optimization (Delhi NCR)
+# SIH26137 — QRoute: Quantum-Inspired Intelligent Traffic Route Optimization (Delhi NCR)
 
 A quantum-behaved particle swarm optimizer (**QPSO**) for the **Capacitated Vehicle Routing Problem with Time Windows (CVRPTW)**, driven by a real Delhi NCR road graph and 2024 hourly traffic probe data (Aug 11–30, including the Rakshabandhan festival day).
 
