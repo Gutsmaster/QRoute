@@ -1,4 +1,5 @@
 # SIH26137 — QRoute: Quantum-Inspired Intelligent Traffic Route Optimization (Delhi NCR)
+**Live demo:** https://qroute.streamlit.app
 
 A quantum-behaved particle swarm optimizer (**QPSO**) for the **Capacitated Vehicle Routing Problem with Time Windows (CVRPTW)**, driven by a real Delhi NCR road graph and 2024 hourly traffic probe data (Aug 11–30, including the Rakshabandhan festival day).
 
@@ -35,8 +36,8 @@ The route map is also generated as a standalone file: open [`outputs/map.html`](
 All results are precomputed and stored in `outputs/`.
 
 ```bash
-git clone https://github.com/Gutsmaster/Quantum-Inspired-Intelligent-Traffic-Route-Optimization.git
-cd Quantum-Inspired-Intelligent-Traffic-Route-Optimization
+git clone https://github.com/Gutsmaster/QRoute.git
+cd QRoute
 
 pip install streamlit==1.64.0 pandas==3.0.2 numpy
 python -m streamlit run dashboard/app.py
