@@ -1,7 +1,7 @@
 """Run:  ./run_dashboard.sh   (or: streamlit run dashboard/app.py)"""
 import streamlit as st, json, os, pandas as pd, numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(os.path.dirname(HERE), "outputs")
-st.set_page_config(page_title="Quantum-Inspired Delhi Traffic Router", layout="wide")
+st.set_page_config(page_title="QRoute: Quantum-Inspired Delhi Traffic Router", layout="wide")
 R = json.load(open(os.path.join(OUT, "results.json")))
 img = lambda n: st.image(os.path.join(OUT, n))
 W, AB, FT, AF, DV, RC, bench = R["wilcoxon"], R["ablation_quantum_term"], R["festival_test"], R["archive_fallback"], R["dynamic_value"], R["recovery_demo"], R["full_benchmark"]
@@ -11,7 +11,7 @@ sig = lambda p: "statistically significant" if p < 0.05 else "NOT statistically 
 GA, PS = W["GA+LS(memetic)"], W["PSO(same infra, tuned)"]
 sc = R["scalability"][-1]
 
-st.title("🚦 Quantum-Inspired Intelligent Traffic Route Optimization")
+st.title("🚦 QRoute: Quantum-Inspired Intelligent Traffic Route Optimization")
 st.caption("SIH26137 · QPSO-based dynamic VRP on real Delhi NCR 2024 probe data (Aug 11-30, incl. Rakshabandhan)")
 tabs = st.tabs(["Overview", "Live Route Map", "Real-anomaly tests", "Benchmarking", "Convergence & Pareto", "Scalability", "Honesty & protocol"])
 
@@ -22,7 +22,7 @@ with tabs[0]:
     c[2].metric("QPSO vs ACO / tuned LS", f"{W['ACO']['qpso_mean_improvement_pct']:+.0f}% / {W['TunedLS(HGS-inspired)']['qpso_mean_improvement_pct']:+.0f}%")
     c[3].metric("Mean gap to OR-Tools", f"{np.mean(gaps):+.1f}%", f"Delhi instances: {np.mean(gaps[:2]):+.1f}%", delta_color="off")
     st.markdown(f"""
-**Held-out results** ({AB['n_pairs']} paired runs, 8 instances never used for tuning, shared local-search stack for all swarm/evolutionary methods):
+**Held-out results** ({AB['n_pairs']} paired runs, 8 held-out instances (reused once to confirm infrastructure changes), shared local-search stack for all swarm/evolutionary methods):
 - QPSO beats plain GA, ACO and tuned local search decisively (Wilcoxon p<0.0001, 100% of runs).
 - QPSO vs classical PSO with **identical infrastructure**: {AB['pct_improvement_over_classical_pso']:+.2f}% mean, p={AB['p_value']:.2f} — **{sig(AB['p_value'])}** here (independent confirmation runs measured +0.5% to +2.5%).
 - QPSO vs a **memetic GA** (same local search): {GA['qpso_mean_improvement_pct']:+.2f}%, p={GA['p_value']:.2f} — **{sig(GA['p_value'])}**; the two are indistinguishable.
